@@ -1,0 +1,150 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leva Leve | Procurando motorista</title>
+    <meta
+      name="description"
+      content="Estamos procurando o melhor motorista para sua solicitacao."
+    />
+    <link rel="icon" type="image/svg+xml" href="../assets/brand-icon.svg?v=2" />
+    <link rel="shortcut icon" type="image/svg+xml" href="../assets/brand-icon.svg?v=2" />
+    <link rel="apple-touch-icon" href="../assets/brand-icon.svg?v=2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                500: "#10B981",
+                600: "#059669",
+                700: "#047857",
+              },
+            },
+            fontFamily: {
+              title: ["Sora", "sans-serif"],
+              body: ["DM Sans", "sans-serif"],
+            },
+            keyframes: {
+              pulseRing: {
+                "0%": { transform: "scale(0.84)", opacity: "0.85" },
+                "70%": { transform: "scale(1.08)", opacity: "0.15" },
+                "100%": { transform: "scale(1.12)", opacity: "0" },
+              },
+              progressMove: {
+                "0%": { transform: "translateX(-68%)" },
+                "100%": { transform: "translateX(160%)" },
+              },
+              dotBlink: {
+                "0%, 20%": { opacity: "0.25" },
+                "50%": { opacity: "1" },
+                "100%": { opacity: "0.25" },
+              },
+              cardFloat: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-5px)" },
+              },
+            },
+            animation: {
+              pulseRing: "pulseRing 2.4s ease-out infinite",
+              progressMove: "progressMove 2.2s linear infinite",
+              dotBlink: "dotBlink 1.2s ease-in-out infinite",
+              cardFloat: "cardFloat 2.8s ease-in-out infinite",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-brand-500 via-emerald-500 to-blue-600 font-body text-white antialiased">
+    <header class="w-full border-b border-white/20 bg-white/10 backdrop-blur">
+      <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 md:px-8">
+        <a href="../index.html" class="inline-flex items-center gap-3">
+          <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-9 w-9 rounded-lg bg-white/20 p-1" />
+          <span class="font-title text-xl font-bold tracking-tight text-white">Leva Leve</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="mx-auto flex max-w-5xl flex-col items-center px-6 py-14 text-center md:py-20">
+      <div class="relative flex h-32 w-32 items-center justify-center">
+        <span class="absolute h-32 w-32 rounded-full bg-white/20 animate-pulseRing"></span>
+        <span class="absolute h-24 w-24 rounded-full bg-white/20 animate-pulseRing" style="animation-delay: 0.7s"></span>
+        <span class="inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-white/75 bg-white/20">
+          <svg viewBox="0 0 24 24" fill="none" class="h-10 w-10 text-white" aria-hidden="true">
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" />
+            <path d="M20 20L16.4 16.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+      </div>
+
+      <h1 class="mt-8 font-title text-5xl font-extrabold tracking-tight">Procurando motorista...</h1>
+      <p class="mt-4 text-2xl text-emerald-50">Estamos encontrando o melhor motorista disponivel para voce</p>
+
+      <div class="mt-10 grid w-full max-w-3xl gap-4 md:grid-cols-3">
+        <article class="rounded-2xl bg-white/10 p-6 backdrop-blur-sm animate-cardFloat">
+          <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20">
+            <svg viewBox="0 0 24 24" fill="none" class="h-7 w-7" aria-hidden="true">
+              <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" />
+              <path d="M20 20L16.4 16.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h2 class="mt-4 font-title text-2xl font-extrabold">Analisando</h2>
+          <p class="mt-2 text-sm text-emerald-100">Motoristas disponiveis na regiao</p>
+          <div class="mt-3 flex justify-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.2s"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.4s"></span>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white/10 p-6 backdrop-blur-sm animate-cardFloat" style="animation-delay: 0.2s">
+          <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20">
+            <svg viewBox="0 0 24 24" fill="none" class="h-7 w-7" aria-hidden="true">
+              <path d="M12 21C16 17 19 13.4 19 10A7 7 0 1 0 5 10C5 13.4 8 17 12 21Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h2 class="mt-4 font-title text-2xl font-extrabold">Verificando</h2>
+          <p class="mt-2 text-sm text-emerald-100">Proximidade e disponibilidade</p>
+          <div class="mt-3 flex justify-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.2s"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.4s"></span>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white/10 p-6 backdrop-blur-sm animate-cardFloat" style="animation-delay: 0.4s">
+          <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20">
+            <svg viewBox="0 0 24 24" fill="none" class="h-7 w-7" aria-hidden="true">
+              <path d="M4 9H14V14H4V9Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 10H17L20 13V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="8" cy="16" r="1.5" stroke="currentColor" stroke-width="2"/>
+              <circle cx="16" cy="16" r="1.5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h2 class="mt-4 font-title text-2xl font-extrabold">Conectando</h2>
+          <p class="mt-2 text-sm text-emerald-100">Com o motorista ideal</p>
+          <div class="mt-3 flex justify-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.2s"></span>
+            <span class="h-2 w-2 rounded-full bg-white animate-dotBlink" style="animation-delay: 0.4s"></span>
+          </div>
+        </article>
+      </div>
+
+      <div class="mt-14 h-4 w-56 overflow-hidden rounded-md bg-white/85">
+        <div class="h-full w-24 rounded-md bg-white animate-progressMove"></div>
+      </div>
+    </main>
+  </body>
+</html>
+

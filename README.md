@@ -11,7 +11,14 @@ Landing page desenvolvida em HTML + Tailwind CSS para apresentar o servico de tr
 ## Estrutura
 
 - `index.html`: pagina principal
-- `assets/brand-icon.svg`: icone vetorial usado no header e como favicon
+- `pages/`: paginas de fluxo da solicitacao
+- `pages/solicitar-transporte.html`: selecao do tipo de transporte
+- `pages/detalhes-item.html`: detalhes do item
+- `pages/enderecos.html`: endereco de coleta e entrega
+- `pages/alterar-endereco.html`: tela dedicada para alteracao de endereco
+- `pages/confirmar-pagamento.html`: revisao final e solicitacao
+- `pages/procurando-motorista.html`: tela animada de busca de motorista
+- `assets/brand-icon.svg`: icone vetorial usado no header e favicon
 
 ## Como executar
 

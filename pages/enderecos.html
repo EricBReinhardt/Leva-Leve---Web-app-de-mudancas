@@ -1,0 +1,184 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leva Leve | Enderecos de coleta e entrega</title>
+    <meta
+      name="description"
+      content="Informe os enderecos de coleta e entrega para calcular o preco do transporte."
+    />
+    <link rel="icon" type="image/svg+xml" href="../assets/brand-icon.svg?v=2" />
+    <link rel="shortcut icon" type="image/svg+xml" href="../assets/brand-icon.svg?v=2" />
+    <link rel="apple-touch-icon" href="../assets/brand-icon.svg?v=2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#ECFDF5",
+                100: "#D1FAE5",
+                500: "#10B981",
+                600: "#059669",
+                700: "#047857",
+              },
+            },
+            fontFamily: {
+              title: ["Sora", "sans-serif"],
+              body: ["DM Sans", "sans-serif"],
+            },
+            boxShadow: {
+              card: "0 4px 14px rgba(15, 23, 42, 0.08)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-100 font-body text-slate-900 antialiased">
+    <header class="w-full border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 md:px-8">
+        <a href="../index.html" class="inline-flex items-center gap-3">
+          <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-9 w-9" />
+          <span class="font-title text-xl font-bold tracking-tight text-brand-700">Leva Leve</span>
+        </a>
+        <div class="hidden items-center gap-5 text-sm text-slate-600 md:flex">
+          <a href="#" class="font-medium transition hover:text-slate-900">Minhas viagens</a>
+          <a href="#" class="font-medium transition hover:text-slate-900">Ajuda</a>
+          <span class="h-6 w-px bg-slate-200"></span>
+          <div class="text-right leading-tight">
+            <p class="text-sm font-bold text-slate-900">Joao Silva</p>
+            <p class="text-xs text-slate-500">joao@email.com</p>
+          </div>
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">JS</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-10 lg:px-8">
+      <div class="mb-6 flex items-center gap-3 text-sm text-slate-500">
+        <a href="detalhes-item.html" class="font-medium hover:text-slate-700">&larr; Voltar</a>
+        <span>/</span>
+        <span>Enderecos de coleta e entrega</span>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-12">
+        <section class="lg:col-span-6">
+          <div class="relative min-h-[420px] overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-100 via-blue-100 to-violet-100 p-5 shadow-card">
+            <button class="absolute right-5 top-5 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-brand-700 shadow-sm hover:bg-white">
+              <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" aria-hidden="true">
+                <path d="M12 21C16 17 19 13.4 19 10A7 7 0 1 0 5 10C5 13.4 8 17 12 21Z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Usar minha localizacao
+            </button>
+
+            <div class="flex h-full flex-col items-center justify-center text-center text-slate-500">
+              <svg viewBox="0 0 24 24" fill="none" class="h-14 w-14 text-slate-400" aria-hidden="true">
+                <path d="M12 21C16 17 19 13.4 19 10A7 7 0 1 0 5 10C5 13.4 8 17 12 21Z" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              <p class="mt-3 text-lg font-medium">Visualizacao do mapa</p>
+              <p class="text-sm">Rota sera calculada automaticamente</p>
+
+              <div class="mt-8 flex items-center gap-3">
+                <span class="h-3 w-3 rounded-full bg-brand-600"></span>
+                <span class="text-sm">Ponto de coleta</span>
+              </div>
+              <div class="h-10 w-px bg-slate-300"></div>
+              <div class="flex items-center gap-3">
+                <span class="h-3 w-3 rounded-full bg-red-500"></span>
+                <span class="text-sm">Ponto de entrega</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lg:col-span-6">
+          <h1 class="font-title text-4xl font-extrabold tracking-tight text-slate-900">Enderecos</h1>
+          <p class="mt-2 text-lg text-slate-600">Informe os locais de coleta e entrega</p>
+
+          <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+            <div class="flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-brand-600"></span>
+              <h2 class="text-2xl font-title font-extrabold text-slate-900">Endereco de coleta</h2>
+            </div>
+            <div class="mt-3 rounded-xl border border-emerald-300 bg-emerald-50 p-3">
+              <p class="text-2xl font-title font-extrabold text-slate-900">Rua das Flores, 123</p>
+              <p class="text-sm text-slate-500">Vila Mariana, Sao Paulo - SP</p>
+              <input
+                type="text"
+                placeholder="Complemento (apto, andar, bloco...)"
+                class="mt-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <label class="text-sm text-slate-600">
+                  Tem elevador?
+                  <select class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100">
+                    <option>Sim</option>
+                    <option>Nao</option>
+                  </select>
+                </label>
+                <label class="text-sm text-slate-600">
+                  Andar
+                  <input type="text" placeholder="Ex: 3" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-red-500"></span>
+              <h2 class="text-2xl font-title font-extrabold text-slate-900">Endereco de entrega</h2>
+            </div>
+            <div class="mt-3 rounded-xl border border-slate-300 bg-slate-50 p-3">
+              <input
+                type="text"
+                placeholder="Digite o endereco completo de entrega"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+              <input
+                type="text"
+                placeholder="Complemento (apto, andar, bloco...)"
+                class="mt-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <label class="text-sm text-slate-600">
+                  Tem elevador?
+                  <select class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100">
+                    <option>Sim</option>
+                    <option>Nao</option>
+                  </select>
+                </label>
+                <label class="text-sm text-slate-600">
+                  Andar
+                  <input type="text" placeholder="Ex: 15" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+              <div>
+                <p class="text-sm font-bold text-blue-700">Distancia estimada</p>
+                <p class="text-xs text-blue-600">Baseada na rota mais rapida</p>
+              </div>
+              <p class="text-4xl font-title font-extrabold text-blue-700">8.5 km</p>
+            </div>
+
+            <a href="confirmar-pagamento.html" class="mt-4 block w-full rounded-lg bg-brand-600 px-4 py-3 text-center text-base font-bold text-white transition hover:bg-brand-700">
+              Calcular Preco
+            </a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
+
