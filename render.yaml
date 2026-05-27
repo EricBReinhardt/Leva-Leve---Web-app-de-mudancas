@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: leva-leve-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    branch: main
+    plan: free
+    autoDeploy: true
+    # Secrets / environment variables should be added in the Render dashboard or via CLI
