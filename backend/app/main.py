@@ -191,10 +191,13 @@ def get_current_user(authorization: str | None, db: Session) -> User:
 
 
 def ensure_transport_request_completed_at_column() -> None:
+    if not settings.database_url.startswith("sqlite"):
+        return
+
     with engine.begin() as connection:
         columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(transport_requests)")}
         if "completed_at" not in columns:
-                        connection.exec_driver_sql("ALTER TABLE transport_requests ADD COLUMN completed_at DATETIME")
+            connection.exec_driver_sql("ALTER TABLE transport_requests ADD COLUMN completed_at DATETIME")
 
 
 @app.on_event("startup")
