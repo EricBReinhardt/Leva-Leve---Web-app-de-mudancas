@@ -93,6 +93,8 @@
       </div>
     </header>
 
+    <script type="module" src="assets/js/header.js?v=4"></script>
+
     <main>
       <section class="overflow-hidden bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600 py-14 text-white md:py-20">
         <div class="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2 md:items-center md:px-10">
@@ -115,20 +117,7 @@
                 >Ver Como Funciona</a
               >
             </div>
-            <div class="mt-9 grid grid-cols-3 gap-5 text-sm">
-              <div>
-                <p class="font-title text-2xl font-extrabold">50mil+</p>
-                <p class="text-emerald-100">Transportes realizados</p>
-              </div>
-              <div>
-                <p class="font-title text-2xl font-extrabold">4.9+</p>
-                <p class="text-emerald-100">Avaliação média</p>
-              </div>
-              <div>
-                <p class="font-title text-2xl font-extrabold">2mil+</p>
-                <p class="text-emerald-100">Motoristas ativos</p>
-              </div>
-            </div>
+            <!-- Estatísticas removidas por serem informativas não verificadas -->
           </div>
 
           <div class="animate-riseIn md:[animation-delay:120ms]">
@@ -415,8 +404,8 @@
       <div class="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
         <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
           <div>
-            <h2 class="font-title text-2xl font-extrabold text-slate-900">Entrar como cliente</h2>
-            <p class="mt-1 text-sm text-slate-600">Acesse sua conta ou crie uma conta de cliente.</p>
+            <h2 class="font-title text-2xl font-extrabold text-slate-900">Entrar na sua conta</h2>
+            <p class="mt-1 text-sm text-slate-600">Acesse sua conta de cliente ou motorista.</p>
           </div>
           <button id="fechar-login-cliente" type="button" class="rounded-full px-3 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100">×</button>
         </div>
@@ -425,7 +414,7 @@
           <section class="border-b border-slate-200 p-6 lg:border-b-0 lg:border-r">
             <p class="text-xs font-bold uppercase tracking-[0.24em] text-brand-700">Entrar</p>
             <h3 class="mt-2 font-title text-2xl font-extrabold text-slate-900">Login rapido</h3>
-            <p class="mt-2 text-sm text-slate-600">Acesso com e-mail e senha para clientes.</p>
+            <p class="mt-2 text-sm text-slate-600">Acesso com e-mail e senha para cliente ou motorista.</p>
 
             <form id="cliente-login-form" class="mt-5 space-y-4">
               <div>
@@ -441,9 +430,8 @@
             </form>
 
             <div class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p class="font-bold text-slate-900">Conta de teste</p>
-              <p>cliente.teste@levaleve.com</p>
-              <p>Cliente123!</p>
+              <p class="font-bold text-slate-900">Dica</p>
+              <p>Use seu e-mail e senha para acessar sua conta.</p>
             </div>
           </section>
 
@@ -694,10 +682,10 @@
         try {
           const session = await request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email, password, role: 'client' }),
+            body: JSON.stringify({ email, password }),
           });
           setSession(session);
-          window.location.href = 'pages/solicitar-transporte.html';
+          window.location.href = session.user?.role === 'driver' ? 'pages/area-motorista.html' : 'pages/solicitar-transporte.html';
         } catch (error) {
           showError(clienteLoginError, error.message);
         }

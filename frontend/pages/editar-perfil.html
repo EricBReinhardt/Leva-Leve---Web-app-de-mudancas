@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Editar Perfil — Leva Leve</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#ECFDF5',
+                100: '#D1FAE5',
+                500: '#10B981',
+                600: '#059669',
+                700: '#047857',
+              },
+            },
+            fontFamily: {
+              title: ['Sora', 'sans-serif'],
+              body: ['DM Sans', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-100 font-body text-slate-900 antialiased">
+    <header class="border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 md:px-8">
+        <a href="../index.html" class="inline-flex items-center gap-3">
+          <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-8 w-8" />
+          <span class="font-title text-xl font-bold text-brand-700">Leva Leve</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="mx-auto grid max-w-6xl gap-6 px-6 py-8 md:grid-cols-[220px_minmax(0,1fr)] md:px-8">
+      <aside class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <nav class="space-y-2">
+          <button id="tab-edit" type="button" class="w-full rounded-xl bg-brand-600 px-4 py-3 text-left font-semibold text-white">Editar perfil</button>
+          <button id="tab-terms" type="button" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left font-semibold text-slate-700 hover:bg-slate-50">Termos de uso</button>
+        </nav>
+      </aside>
+
+      <section class="space-y-6">
+        <article id="panel-edit" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-brand-700">Perfil</p>
+          <h1 class="mt-2 font-title text-3xl font-extrabold">Editar perfil</h1>
+          <p class="mt-2 text-sm text-slate-600">Atualize seu nome e e-mail.</p>
+
+          <form id="edit-profile-form" class="mt-6 grid gap-3 max-w-xl">
+            <input id="name" placeholder="Nome completo" class="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+            <input id="email" type="email" placeholder="E-mail" class="rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+            <button type="button" id="save" class="rounded-xl bg-brand-600 px-4 py-3 font-semibold text-white hover:bg-brand-700">Salvar</button>
+          </form>
+        </article>
+
+        <article id="panel-terms" class="hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-brand-700">Legal</p>
+          <h2 class="mt-2 font-title text-3xl font-extrabold">Termos de uso</h2>
+          <div class="mt-5 space-y-4 text-sm leading-6 text-slate-700">
+            <p class="text-base font-semibold text-slate-900">Leva Leve - Termos de uso</p>
+            <p>Este espaço pode ser usado para o conteúdo legal completo do serviço.</p>
+            <ul class="list-disc space-y-2 pl-5">
+              <li>As corridas seguem as regras exibidas na plataforma.</li>
+              <li>O usuário é responsável pelos dados informados.</li>
+              <li>O serviço pode atualizar estes termos quando necessário.</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      const editTab = document.getElementById('tab-edit');
+      const termsTab = document.getElementById('tab-terms');
+      const editPanel = document.getElementById('panel-edit');
+      const termsPanel = document.getElementById('panel-terms');
+
+      function showPanel(kind) {
+        const showEdit = kind === 'edit';
+        editPanel.classList.toggle('hidden', !showEdit);
+        termsPanel.classList.toggle('hidden', showEdit);
+        editTab.className = showEdit
+          ? 'w-full rounded-xl bg-brand-600 px-4 py-3 text-left font-semibold text-white'
+          : 'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left font-semibold text-slate-700 hover:bg-slate-50';
+        termsTab.className = showEdit
+          ? 'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left font-semibold text-slate-700 hover:bg-slate-50'
+          : 'w-full rounded-xl bg-brand-600 px-4 py-3 text-left font-semibold text-white';
+      }
+
+      editTab.addEventListener('click', () => showPanel('edit'));
+      termsTab.addEventListener('click', () => showPanel('terms'));
+
+      document.getElementById('save').addEventListener('click', () => {
+        try {
+          const current = JSON.parse(localStorage.getItem('LEVA_LEVE_USER') || '{}');
+          current.name = String(document.getElementById('name').value || '').trim();
+          current.email = String(document.getElementById('email').value || '').trim();
+          localStorage.setItem('LEVA_LEVE_USER', JSON.stringify(current));
+        } catch {}
+      });
+
+      document.addEventListener('DOMContentLoaded', () => {
+        try {
+          const raw = localStorage.getItem('LEVA_LEVE_USER');
+          if (raw) {
+            const user = JSON.parse(raw);
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+          }
+        } catch {}
+        showPanel('edit');
+      });
+    </script>
+  </body>
+</html>

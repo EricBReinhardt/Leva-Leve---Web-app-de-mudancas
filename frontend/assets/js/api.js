@@ -18,6 +18,10 @@ export function getStoredUser() {
   return raw ? JSON.parse(raw) : null;
 }
 
+import { money as _money } from './utils.js';
+
+export function money(value, opts) { return _money(value, opts); }
+
 export async function request(path, options = {}) {
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');

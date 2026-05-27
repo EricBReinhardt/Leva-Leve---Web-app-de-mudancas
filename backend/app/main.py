@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.db.base import Base
@@ -139,6 +141,37 @@ def notification_payload(notification: Notification | None) -> dict | None:
     }
 
 
+def completed_requests_for_driver(db: Session, driver_id: str) -> list[TransportRequest]:
+    return db.scalars(
+        select(TransportRequest)
+        .where(TransportRequest.status == RequestStatus.completed)
+        .where(TransportRequest.accepted_driver_id == driver_id)
+        .order_by(TransportRequest.completed_at.desc().nullslast(), TransportRequest.created_at.desc())
+    ).all()
+
+
+def normalize_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def completed_today_for_driver(db: Session, driver_id: str) -> list[TransportRequest]:
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    requests = completed_requests_for_driver(db, driver_id)
+    return [item for item in requests if normalize_utc(item.completed_at) and normalize_utc(item.completed_at).date() == today]
+
+
+def completed_this_week_for_driver(db: Session, driver_id: str) -> list[TransportRequest]:
+    now = datetime.now(timezone.utc)
+    start_of_week = now - timedelta(days=now.weekday())
+    requests = completed_requests_for_driver(db, driver_id)
+    return [item for item in requests if normalize_utc(item.completed_at) and normalize_utc(item.completed_at) >= start_of_week]
+
+
 def get_current_user(authorization: str | None, db: Session) -> User:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token ausente")
@@ -146,9 +179,9 @@ def get_current_user(authorization: str | None, db: Session) -> User:
     token = authorization.removeprefix("Bearer ").strip()
     session = db.get(SessionToken, token)
     expires_at = session.expires_at if session else None
-    if expires_at and expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-    if not session or expires_at < datetime.now(timezone.utc):
+    if expires_at is not None:
+        expires_at = normalize_utc(expires_at)
+    if not session or not expires_at or expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sessao expirada")
 
     user = db.get(User, session.user_id)
@@ -157,11 +190,24 @@ def get_current_user(authorization: str | None, db: Session) -> User:
     return user
 
 
+def ensure_transport_request_completed_at_column() -> None:
+    with engine.begin() as connection:
+        columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(transport_requests)")}
+        if "completed_at" not in columns:
+                        connection.exec_driver_sql("ALTER TABLE transport_requests ADD COLUMN completed_at DATETIME")
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
+    ensure_transport_request_completed_at_column()
     with SessionLocal() as db:
         seed_database(db)
+
+
+@app.exception_handler(Exception)
+def generic_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 
 @app.get("/health", response_model=SimpleMessage)
@@ -428,6 +474,51 @@ def accept_driver_request(request_id: str, authorization: str | None = Header(de
     }
 
 
+@app.post("/driver/requests/{request_id}/complete", response_model=DriverAcceptOut)
+def complete_driver_request(request_id: str, authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
+    user = get_current_user(authorization, db)
+    if user.role != UserRole.driver or not user.driver_profile:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso permitido apenas para motorista")
+
+    request = db.get(TransportRequest, request_id)
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solicitacao nao encontrada")
+    if request.status != RequestStatus.accepted:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A corrida precisa estar em andamento para ser concluida")
+    if request.accepted_driver_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Voce nao pode concluir esta solicitacao")
+
+    request.status = RequestStatus.completed
+    request.completed_at = datetime.now(timezone.utc)
+    user.driver_profile.available_balance += request.price
+    user.driver_profile.trips_completed += 1
+
+    client_user = db.scalar(select(User).where(User.role == UserRole.client, User.name == request.client_name))
+    notification = None
+    if client_user:
+        notification = Notification(
+            user_id=client_user.id,
+            kind="ride_completed",
+            title="Corrida concluida",
+            message=f"Sua corrida {request.title} foi concluida com sucesso.",
+            request_id=request.id,
+        )
+        db.add(notification)
+
+    db.add(request)
+    db.add(user.driver_profile)
+    db.commit()
+    db.refresh(request)
+    db.refresh(user.driver_profile)
+    if notification is not None:
+        db.refresh(notification)
+
+    return {
+        "request": request_payload(request, accepted_driver_name=user.name),
+        "notification": notification_payload(notification),
+    }
+
+
 @app.get("/driver/profile/me", response_model=DriverProfileOut)
 def get_driver_profile(authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
     user = get_current_user(authorization, db)
@@ -521,12 +612,16 @@ def driver_dashboard(authorization: str | None = Header(default=None), db: Sessi
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso permitido apenas para motorista")
 
     active_requests = db.scalars(select(TransportRequest).where(TransportRequest.status == RequestStatus.available)).all()
-    history: list[dict] = []
+    completed_today = completed_today_for_driver(db, user.id)
+    completed_week = completed_this_week_for_driver(db, user.id)
+    today_earnings = sum(item.price for item in completed_today)
+    today_trips = len(completed_today)
+    weekly_average = (sum(item.price for item in completed_week) / len(completed_week)) if completed_week else 0.0
     return {
         "total_balance": user.driver_profile.available_balance,
-        "today_earnings": 847.0,
-        "today_trips": 12,
-        "weekly_average": 70.58,
+        "today_earnings": today_earnings,
+        "today_trips": today_trips,
+        "weekly_average": weekly_average,
         "active_requests": [
             {
                 "id": item.id,
@@ -542,14 +637,14 @@ def driver_dashboard(authorization: str | None = Header(default=None), db: Sessi
             }
             for item in active_requests
         ],
-        "history": history,
+        "history": [],
         "stats": {
-            "acceptance_rate": 94,
-            "completion_rate": 98,
+            "acceptance_rate": 0 if not active_requests and today_trips == 0 else 94,
+            "completion_rate": 0 if today_trips == 0 else 98,
             "rating": user.driver_profile.rating,
-            "week_trips": 79,
-            "week_hours": 56,
-            "week_km": 687,
-            "hour_average": 58.12,
+            "week_trips": len(completed_week),
+            "week_hours": 0 if not completed_week else round(len(completed_week) * 1.0, 2),
+            "week_km": round(sum(item.distance_km for item in completed_week), 1),
+            "hour_average": weekly_average,
         },
     }

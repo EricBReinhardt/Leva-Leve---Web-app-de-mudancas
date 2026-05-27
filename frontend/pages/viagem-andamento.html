@@ -40,12 +40,14 @@
     </script>
   </head>
   <body class="min-h-screen bg-slate-100 font-body text-slate-900 antialiased">
-    <header class="w-full border-b border-white/20 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+    <header class="w-full border-b border-white/20 bg-gradient-to-r from-brand-600 to-brand-700 text-white">
       <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 md:px-8">
         <div class="flex items-center gap-3">
-          <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-8 w-8 rounded-lg bg-white/20 p-1" />
+          <a href="../index.html" class="inline-flex items-center">
+            <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-8 w-8 rounded-lg bg-white/20 p-1" />
+          </a>
           <div>
-            <p class="font-title text-2xl font-extrabold">Leva Leve</p>
+            <a href="../index.html" class="font-title text-2xl font-extrabold text-white hover:underline">Leva Leve</a>
             <p class="text-sm text-blue-100">Viagem em andamento</p>
           </div>
         </div>
@@ -290,8 +292,40 @@
 
       (function () {
         const finishButton = document.getElementById("finalizar-entrega");
-        finishButton.addEventListener("click", function () {
-          window.location.href = "area-motorista.html";
+        finishButton.addEventListener("click", async function () {
+          const token = localStorage.getItem('LEVA_LEVE_TOKEN') || '';
+          if (!token || !requestId) {
+            window.location.href = "area-motorista.html";
+            return;
+          }
+
+          finishButton.disabled = true;
+          finishButton.textContent = 'Finalizando...';
+
+          try {
+            const response = await fetch(`http://localhost:8000/driver/requests/${requestId}/complete`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error('Nao foi possivel concluir a corrida.');
+            }
+
+            const result = await response.json();
+            if (result?.notification) {
+              sessionStorage.setItem('LEVA_LEVE_LAST_NOTIFICATION', JSON.stringify(result.notification));
+            }
+
+            window.location.href = `area-motorista.html?completed=${requestId}`;
+          } catch (error) {
+            finishButton.disabled = false;
+            finishButton.textContent = '⟳ Finalizar entrega';
+            alert(error.message || 'Nao foi possivel concluir a corrida.');
+          }
         });
       })();
     </script>

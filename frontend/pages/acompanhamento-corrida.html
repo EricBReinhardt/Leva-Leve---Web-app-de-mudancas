@@ -251,6 +251,12 @@
         rideNotification.classList.remove('hidden');
       }
 
+      function redirectToTripsSoon() {
+        setTimeout(() => {
+          window.location.href = `minhas-viagens.html?request=${requestId}`;
+        }, 1400);
+      }
+
       function setMapPosition(value) {
         const point = routePath.getPointAtLength(pathLength * value);
         driverMarker.setAttribute('transform', `translate(${point.x} ${point.y})`);
@@ -348,6 +354,34 @@
             document.getElementById('progress-label').textContent = `${Math.round(progress * 100)}%`;
             if (!animationFrameId) {
               animateMap();
+            }
+          } else if (trip.status === 'completed') {
+            document.getElementById('trip-subtitle').textContent = 'Sua corrida foi concluída.';
+            document.getElementById('trip-status').textContent = statusLabel(trip.status);
+            document.getElementById('status-copy').textContent = statusLabel(trip.status);
+            document.getElementById('progress-label').textContent = '100%';
+            document.getElementById('progress-bar').style.width = '100%';
+            showNotification({
+              id: `completed-${requestId}`,
+              title: 'Corrida concluída',
+              message: 'Seu transporte foi finalizado e já foi para o histórico.',
+            });
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+              animationFrameId = null;
+            }
+            redirectToTripsSoon();
+          }
+
+          if (trip.status === 'completed' || trip.status === 'canceled') {
+            const storedNotification = sessionStorage.getItem('LEVA_LEVE_LAST_NOTIFICATION');
+            if (storedNotification) {
+              try {
+                showNotification(JSON.parse(storedNotification));
+                sessionStorage.removeItem('LEVA_LEVE_LAST_NOTIFICATION');
+              } catch {
+                sessionStorage.removeItem('LEVA_LEVE_LAST_NOTIFICATION');
+              }
             }
           }
         } catch (error) {

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.models import ClientProfile, DriverProfile, RequestStatus, SessionToken, TransportRequest, User, UserRole
@@ -55,28 +55,15 @@ def seed_database(db: Session) -> None:
             capacity_kg=650,
             rating=4.9,
             trips_completed=2847,
-            available_balance=3254.80,
+            available_balance=0.0,
         )
         db.add(driver)
+    elif driver.driver_profile:
+        driver.driver_profile.available_balance = 0.0
+        driver.driver_profile.trips_completed = 0
+        db.add(driver)
 
-    request_exists = db.scalar(select(TransportRequest).where(TransportRequest.title == "Sofa de 3 lugares"))
-    if not request_exists:
-        db.add(
-            TransportRequest(
-                status=RequestStatus.available,
-                title="Sofa de 3 lugares",
-                client_name="Joao M.",
-                client_since="Cliente desde 2024",
-                category="Moveis",
-                pickup_address="Rua das Flores, 123 - Vila Mariana, Sao Paulo - SP",
-                dropoff_address="Av. Paulista, 1500 - Bela Vista, Sao Paulo - SP",
-                distance_km=8.5,
-                eta_minutes=40,
-                price=89.90,
-                helper_required=True,
-                item_description="Sofa de 3 lugares, 100x80x90 cm, ajudante incluso",
-            )
-        )
+    db.execute(text("DELETE FROM transport_requests WHERE title = :title"), {"title": "Sofa de 3 lugares"})
 
     db.commit()
 

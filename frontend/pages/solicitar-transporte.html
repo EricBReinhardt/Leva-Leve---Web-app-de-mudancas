@@ -51,15 +51,15 @@
           <img src="../assets/brand-icon.svg" alt="Leva Leve" class="h-9 w-9" />
           <span class="font-title text-xl font-bold tracking-tight text-brand-700">Leva Leve</span>
         </a>
-        <div class="hidden items-center gap-5 text-sm text-slate-600 md:flex">
+          <div class="hidden items-center gap-5 text-sm text-slate-600 md:flex" id="client-header-controls">
           <a href="minhas-viagens.html" class="font-medium transition hover:text-slate-900">Minhas viagens</a>
           <a href="#" class="font-medium transition hover:text-slate-900">Ajuda</a>
           <span class="h-6 w-px bg-slate-200"></span>
-          <div class="text-right leading-tight">
-            <p class="text-sm font-bold text-slate-900">Joao Silva</p>
-            <p class="text-xs text-slate-500">joao@email.com</p>
+          <div class="text-right leading-tight" id="client-header-user">
+            <p id="page-user-name" class="text-sm font-bold text-slate-900">Carregando...</p>
+            <p id="page-user-email" class="text-xs text-slate-500">--</p>
           </div>
-          <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">JS</span>
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white" id="client-header-avatar">--</span>
         </div>
       </div>
     </header>
@@ -188,6 +188,7 @@
       </div>
     </main>
 
+    <script type="module" src="../assets/js/header.js?v=4"></script>
     <script type="module">
       import { request } from '../assets/js/api.js';
 
