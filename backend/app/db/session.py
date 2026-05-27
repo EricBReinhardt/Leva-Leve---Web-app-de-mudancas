@@ -12,7 +12,8 @@ else:
 	url = make_url(database_url)
 	if url.drivername in {"postgresql", "postgres"}:
 		url = url.set(drivername="postgresql+psycopg")
-	database_url = str(url)
+	# Keep the real password when rebuilding the URL for the SQLAlchemy driver.
+	database_url = url.render_as_string(hide_password=False)
 
 engine = create_engine(database_url, **engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
