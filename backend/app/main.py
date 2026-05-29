@@ -704,10 +704,13 @@ def get_driver_request(request_id: str, authorization: str | None = Header(defau
     if not request:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Solicitacao nao encontrada")
 
+    client_user = db.scalar(select(User).where(User.role == UserRole.client, User.name == request.client_name))
+
     return {
         "id": request.id,
         "title": request.title,
         "client_name": request.client_name,
+        "client_phone": client_user.phone if client_user else None,
         "client_since": request.client_since,
         "category": request.category,
         "pickup_address": request.pickup_address,
