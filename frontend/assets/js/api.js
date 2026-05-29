@@ -1,6 +1,7 @@
 function defaultApiBase() {
   const override = localStorage.getItem('LEVA_LEVE_API_BASE');
-  if (override) {
+  const isLocalDev = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (override && isLocalDev) {
     return override.replace(/\/$/, '');
   }
 

@@ -15,6 +15,13 @@ class TokenResponse(BaseModel):
     user: dict
 
 
+class UserUpdateIn(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    phone: str | None = None
+    avatar_url: str | None = None
+
+
 class ClientAddressIn(BaseModel):
     street: str
     number: str

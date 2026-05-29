@@ -5,11 +5,8 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
+from app.core.security import hash_password, hash_session_token, new_session_token
 from app.models import ClientProfile, DriverProfile, RequestStatus, SessionToken, TransportRequest, User, UserRole
-
-
-def _hash_password(password: str) -> str:
-    return f"hash::{password}"
 
 
 def seed_database(db: Session) -> None:
@@ -20,7 +17,7 @@ def seed_database(db: Session) -> None:
             name="Cliente Teste",
             email="cliente.teste@levaleve.com",
             phone="(11) 90000-0001",
-            password_hash=_hash_password("Cliente123!"),
+            password_hash=hash_password("Cliente123!"),
             avatar_url=None,
         )
         client.client_profile = ClientProfile(
@@ -43,7 +40,7 @@ def seed_database(db: Session) -> None:
             name="Carlos Silva",
             email="motorista.teste@levaleve.com",
             phone="(11) 98888-0002",
-            password_hash=_hash_password("Motorista123!"),
+            password_hash=hash_password("Motorista123!"),
             avatar_url=None,
         )
         driver.driver_profile = DriverProfile(
@@ -69,7 +66,13 @@ def seed_database(db: Session) -> None:
 
 
 def create_session(db: Session, user_id: str) -> str:
-    token = f"session::{user_id}::{datetime.now(timezone.utc).timestamp()}"
-    db.add(SessionToken(token=token, user_id=user_id, expires_at=datetime.now(timezone.utc) + timedelta(days=7)))
+    token = new_session_token()
+    db.add(
+        SessionToken(
+            token=hash_session_token(token),
+            user_id=user_id,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+        )
+    )
     db.commit()
     return token

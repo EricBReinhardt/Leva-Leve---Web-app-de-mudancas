@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -12,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.security import hash_session_token, verify_password
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.models import ClientProfile, DriverProfile, Notification, RequestStatus, SessionToken, TransportRequest, User, UserRole
@@ -32,10 +35,20 @@ from app.schemas import (
     NotificationOut,
     SimpleMessage,
     TokenResponse,
+    UserUpdateIn,
 )
 from app.seed import create_session, seed_database
 
-app = FastAPI(title="Leva Leve API", version="0.1.0")
+PRODUCTION = os.getenv("VERCEL") == "1" or os.getenv("ENVIRONMENT") == "production" or os.getenv("NODE_ENV") == "production"
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="Leva Leve API",
+    version="0.1.0",
+    docs_url=None if PRODUCTION else "/docs",
+    redoc_url=None if PRODUCTION else "/redoc",
+    openapi_url=None if PRODUCTION else "/openapi.json",
+)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 
@@ -54,16 +67,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def hash_password(password: str) -> str:
-    return f"hash::{password}"
-
-
-def verify_password(password: str, password_hash: str) -> bool:
-    return password_hash == hash_password(password)
-
-
 def user_to_payload(user: User) -> dict:
     return {
         "id": user.id,
@@ -181,7 +184,7 @@ def get_current_user(authorization: str | None, db: Session) -> User:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token ausente")
 
     token = authorization.removeprefix("Bearer ").strip()
-    session = db.get(SessionToken, token)
+    session = db.get(SessionToken, hash_session_token(token)) or db.get(SessionToken, token)
     expires_at = session.expires_at if session else None
     if expires_at is not None:
         expires_at = normalize_utc(expires_at)
@@ -206,10 +209,17 @@ def ensure_transport_request_completed_at_column() -> None:
 
 @app.on_event("startup")
 def on_startup() -> None:
+    if PRODUCTION:
+        if settings.database_url.startswith("sqlite"):
+            raise RuntimeError("DATABASE_URL must be configured in production")
+        if not settings.secret_key or settings.secret_key == "change-me":
+            raise RuntimeError("SECRET_KEY must be configured in production")
+
     Base.metadata.create_all(bind=engine)
     ensure_transport_request_completed_at_column()
     with SessionLocal() as db:
-        seed_database(db)
+        if not PRODUCTION:
+            seed_database(db)
 
 
 app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="assets")
@@ -233,7 +243,9 @@ def frontend_favicon() -> FileResponse:
 
 @app.exception_handler(Exception)
 def generic_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    logger.exception("Unhandled error while serving %s", request.url.path, exc_info=exc)
+    detail = "Erro interno do servidor" if PRODUCTION else str(exc)
+    return JSONResponse(status_code=500, content={"detail": detail})
 
 
 @app.get("/health", response_model=SimpleMessage)
@@ -314,6 +326,29 @@ def me(authorization: str | None = Header(default=None), db: Session = Depends(g
     if user.role == UserRole.driver and user.driver_profile:
         payload["driver_profile"] = driver_profile_payload(user, user.driver_profile)
     return payload
+
+
+@app.put("/me")
+def update_me(payload: UserUpdateIn, authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
+    user = get_current_user(authorization, db)
+
+    if payload.email and payload.email != user.email:
+        exists = db.scalar(select(User).where(User.email == payload.email))
+        if exists:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="E-mail ja cadastrado")
+        user.email = payload.email
+
+    if payload.name is not None:
+        user.name = payload.name
+    if payload.phone is not None:
+        user.phone = payload.phone
+    if payload.avatar_url is not None:
+        user.avatar_url = payload.avatar_url
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user_to_payload(user)
 
 
 @app.get("/client/address/me", response_model=ClientAddressOut)

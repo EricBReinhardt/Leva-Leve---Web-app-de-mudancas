@@ -26,6 +26,10 @@
         },
       };
     </script>
+      <script>
+        window.LL_GUARD = { roles: ['client', 'driver'] };
+      </script>
+      <script type="module" src="../assets/js/auth-guard.js?v=1"></script>
   </head>
   <body class="min-h-screen bg-slate-100 font-body text-slate-900 antialiased">
     <header class="border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -75,6 +79,8 @@
     </main>
 
     <script type="module">
+      import { getToken, request, setSession } from '../assets/js/api.js';
+
       const editTab = document.getElementById('tab-edit');
       const termsTab = document.getElementById('tab-terms');
       const editPanel = document.getElementById('panel-edit');
@@ -95,13 +101,20 @@
       editTab.addEventListener('click', () => showPanel('edit'));
       termsTab.addEventListener('click', () => showPanel('terms'));
 
-      document.getElementById('save').addEventListener('click', () => {
+      document.getElementById('save').addEventListener('click', async () => {
         try {
-          const current = JSON.parse(localStorage.getItem('LEVA_LEVE_USER') || '{}');
-          current.name = String(document.getElementById('name').value || '').trim();
-          current.email = String(document.getElementById('email').value || '').trim();
-          localStorage.setItem('LEVA_LEVE_USER', JSON.stringify(current));
-        } catch {}
+          const payload = {
+            name: String(document.getElementById('name').value || '').trim(),
+            email: String(document.getElementById('email').value || '').trim(),
+          };
+          const updatedUser = await request('/me', {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+          setSession({ token: getToken(), user: updatedUser });
+        } catch (error) {
+          alert(error?.message || 'Nao foi possivel salvar o perfil.');
+        }
       });
 
       document.addEventListener('DOMContentLoaded', () => {
