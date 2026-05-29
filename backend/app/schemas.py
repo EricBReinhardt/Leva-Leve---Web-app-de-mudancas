@@ -72,6 +72,7 @@ class ClientTripOut(BaseModel):
 
 class ClientTripDetailOut(ClientTripOut):
     accepted_driver_name: str | None = None
+    accepted_driver_phone: str | None = None
 
 
 class NotificationOut(BaseModel):

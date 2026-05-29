@@ -125,7 +125,11 @@ def driver_profile_payload(user: User, profile: DriverProfile) -> dict:
     }
 
 
-def request_payload(request: TransportRequest, accepted_driver_name: str | None = None) -> dict:
+def request_payload(
+    request: TransportRequest,
+    accepted_driver_name: str | None = None,
+    accepted_driver_phone: str | None = None,
+) -> dict:
     payload = {
         "id": request.id,
         "title": request.title,
@@ -143,6 +147,8 @@ def request_payload(request: TransportRequest, accepted_driver_name: str | None 
     }
     if accepted_driver_name is not None:
         payload["accepted_driver_name"] = accepted_driver_name
+    if accepted_driver_phone is not None:
+        payload["accepted_driver_phone"] = accepted_driver_phone
     return payload
 
 
@@ -492,11 +498,17 @@ def get_client_request(request_id: str, authorization: str | None = Header(defau
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Voce nao pode ver esta solicitacao")
 
     accepted_driver_name = None
+    accepted_driver_phone = None
     if request.accepted_driver_id:
         driver = db.get(User, request.accepted_driver_id)
         accepted_driver_name = driver.name if driver else None
+        accepted_driver_phone = driver.phone if driver else None
 
-    return request_payload(request, accepted_driver_name=accepted_driver_name)
+    return request_payload(
+        request,
+        accepted_driver_name=accepted_driver_name,
+        accepted_driver_phone=accepted_driver_phone,
+    )
 
 
 @app.post("/client/requests/{request_id}/cancel", response_model=ClientTripOut)

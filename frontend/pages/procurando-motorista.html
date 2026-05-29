@@ -190,7 +190,7 @@
             sessionStorage.setItem('LEVA_LEVE_LAST_NOTIFICATION', JSON.stringify(notifications.items?.[0] || { title: 'Corrida aceita', message: 'Um motorista aceitou sua corrida.' }));
             redirecting = true;
             setTimeout(() => {
-              window.location.href = `acompanhamento-corrida.html?request=${requestId}`;
+              window.location.href = `viagem-andamento.html?request=${requestId}`;
             }, 1200);
           }
         } catch (error) {

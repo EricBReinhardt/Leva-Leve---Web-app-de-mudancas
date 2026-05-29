@@ -154,8 +154,8 @@
           : '';
 
         const openLink = trip.status === 'accepted'
-          ? `<a href="acompanhamento-corrida.html?request=${trip.id}" class="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Ver acompanhamento</a>`
-          : `<a href="procurando-motorista.html?request=${trip.id}" class="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Ver acompanhamento</a>`;
+          ? `<a href="viagem-andamento.html?request=${trip.id}" class="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Ver viagem</a>`
+          : `<a href="procurando-motorista.html?request=${trip.id}" class="inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Ver viagem</a>`;
 
         return `
           <article class="block rounded-2xl border ${wrapperClass} p-5 transition hover:shadow-md">

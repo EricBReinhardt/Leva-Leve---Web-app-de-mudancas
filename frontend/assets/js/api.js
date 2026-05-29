@@ -14,10 +14,6 @@ function defaultApiBase() {
 
 const API_BASE = defaultApiBase();
 
-export function getToken() {
-  return '';
-}
-
 export function setSession(session) {
   if (session?.user) {
     localStorage.setItem('LEVA_LEVE_USER', JSON.stringify(session.user));

@@ -9,7 +9,6 @@ function defaultRedirect() {
 
 function clearSession() {
   try {
-    localStorage.removeItem('LEVA_LEVE_TOKEN');
     localStorage.removeItem('LEVA_LEVE_USER');
   } catch {}
 }
