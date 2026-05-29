@@ -75,6 +75,9 @@ async def cookie_session_to_authorization(request: Request, call_next):
 
 
 def get_db():
+    if PRODUCTION and settings.database_url.startswith("sqlite"):
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="DATABASE_URL nao configurado")
+
     db = SessionLocal()
     try:
         yield db
@@ -238,11 +241,12 @@ def ensure_transport_request_completed_at_column() -> None:
 
 @app.on_event("startup")
 def on_startup() -> None:
-    if PRODUCTION:
-        if settings.database_url.startswith("sqlite"):
-            raise RuntimeError("DATABASE_URL must be configured in production")
-        if not settings.secret_key or settings.secret_key == "change-me":
-            raise RuntimeError("SECRET_KEY must be configured in production")
+    if PRODUCTION and settings.database_url.startswith("sqlite"):
+        logger.warning("DATABASE_URL is not configured in production; DB-backed routes will return 503")
+        return
+
+    if PRODUCTION and (not settings.secret_key or settings.secret_key == "change-me"):
+        logger.warning("SECRET_KEY is not configured in production; continuing without startup crash")
 
     Base.metadata.create_all(bind=engine)
     ensure_transport_request_completed_at_column()
