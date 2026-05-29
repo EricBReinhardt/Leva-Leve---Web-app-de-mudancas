@@ -140,7 +140,7 @@
     </main>
 
     <script type="module">
-      import { request, getToken } from '../assets/js/api.js';
+      import { request } from '../assets/js/api.js';
 
       const form = document.getElementById('address-form');
       const fields = ['street', 'number', 'complement', 'neighborhood', 'city', 'state', 'zip_code', 'floor', 'has_elevator'];
@@ -164,11 +164,6 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        if (!getToken()) {
-          alert('Você precisa entrar na sua conta para salvar o endereço.');
-          return;
-        }
 
         const payload = {
           street: document.getElementById('street').value.trim(),

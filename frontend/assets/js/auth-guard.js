@@ -1,4 +1,4 @@
-import { getStoredUser, getToken, request, setSession } from './api.js';
+import { request, setSession } from './api.js';
 
 document.documentElement.style.visibility = 'hidden';
 document.documentElement.style.opacity = '0';
@@ -15,15 +15,9 @@ function clearSession() {
 }
 
 async function refreshSession() {
-  const token = getToken();
-  const stored = getStoredUser();
-  if (!token || !stored) {
-    return null;
-  }
-
   try {
     const currentUser = await request('/me');
-    setSession({ token, user: currentUser });
+    setSession({ user: currentUser });
     return currentUser;
   } catch {
     clearSession();

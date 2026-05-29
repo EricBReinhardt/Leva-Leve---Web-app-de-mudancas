@@ -15,13 +15,10 @@ function defaultApiBase() {
 const API_BASE = defaultApiBase();
 
 export function getToken() {
-  return localStorage.getItem('LEVA_LEVE_TOKEN') || '';
+  return '';
 }
 
 export function setSession(session) {
-  if (session?.token) {
-    localStorage.setItem('LEVA_LEVE_TOKEN', session.token);
-  }
   if (session?.user) {
     localStorage.setItem('LEVA_LEVE_USER', JSON.stringify(session.user));
   }
@@ -40,16 +37,12 @@ export async function request(path, options = {}) {
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');
 
-  const token = getToken();
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
   let response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers,
+      credentials: 'include',
     });
   } catch (error) {
     throw new Error(`Nao foi possivel conectar ao backend em ${API_BASE}. Verifique se o servidor esta rodando.`);

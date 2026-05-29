@@ -79,7 +79,7 @@
     </main>
 
     <script type="module">
-      import { getToken, request, setSession } from '../assets/js/api.js';
+      import { request, setSession } from '../assets/js/api.js';
 
       const editTab = document.getElementById('tab-edit');
       const termsTab = document.getElementById('tab-terms');
@@ -111,7 +111,7 @@
             method: 'PUT',
             body: JSON.stringify(payload),
           });
-          setSession({ token: getToken(), user: updatedUser });
+          setSession({ user: updatedUser });
         } catch (error) {
           alert(error?.message || 'Nao foi possivel salvar o perfil.');
         }

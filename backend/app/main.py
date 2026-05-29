@@ -5,7 +5,7 @@ import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Response, status
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
@@ -39,6 +39,8 @@ from app.schemas import (
 )
 from app.seed import create_session, seed_database
 
+SESSION_COOKIE = "leva_leve_session"
+
 PRODUCTION = os.getenv("VERCEL") == "1" or os.getenv("ENVIRONMENT") == "production" or os.getenv("NODE_ENV") == "production"
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def cookie_session_to_authorization(request: Request, call_next):
+    authorization_present = any(key == b"authorization" for key, _ in request.scope.get("headers", []))
+    session_token = request.cookies.get(SESSION_COOKIE)
+    if session_token and not authorization_present:
+        headers = list(request.scope.get("headers", []))
+        headers.append((b"authorization", f"Bearer {session_token}".encode("utf-8")))
+        request.scope["headers"] = headers
+    return await call_next(request)
 
 
 def get_db():
@@ -197,6 +210,22 @@ def get_current_user(authorization: str | None, db: Session) -> User:
     return user
 
 
+def set_session_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key=SESSION_COOKIE,
+        value=token,
+        httponly=True,
+        secure=PRODUCTION,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 7,
+        path="/",
+    )
+
+
+def clear_session_cookie(response: Response) -> None:
+    response.delete_cookie(key=SESSION_COOKIE, path="/")
+
+
 def ensure_transport_request_completed_at_column() -> None:
     if not settings.database_url.startswith("sqlite"):
         return
@@ -254,7 +283,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/auth/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.scalar(select(User).where(User.email == payload.email))
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais invalidas")
@@ -263,11 +292,12 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Perfil incorreto")
 
     token = create_session(db, user.id)
-    return {"token": token, "user": user_to_payload(user)}
+    set_session_cookie(response, token)
+    return {"user": user_to_payload(user)}
 
 
 @app.post("/auth/register/client", response_model=TokenResponse)
-def register_client(payload: ClientRegisterIn, db: Session = Depends(get_db)):
+def register_client(payload: ClientRegisterIn, response: Response, db: Session = Depends(get_db)):
     exists = db.scalar(select(User).where(User.email == payload.email))
     if exists:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="E-mail ja cadastrado")
@@ -284,11 +314,12 @@ def register_client(payload: ClientRegisterIn, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     token = create_session(db, user.id)
-    return {"token": token, "user": user_to_payload(user)}
+    set_session_cookie(response, token)
+    return {"user": user_to_payload(user)}
 
 
 @app.post("/auth/register/driver", response_model=TokenResponse)
-def register_driver(payload: DriverRegisterIn, db: Session = Depends(get_db)):
+def register_driver(payload: DriverRegisterIn, response: Response, db: Session = Depends(get_db)):
     exists = db.scalar(select(User).where(User.email == payload.email))
     if exists:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="E-mail ja cadastrado")
@@ -313,7 +344,14 @@ def register_driver(payload: DriverRegisterIn, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     token = create_session(db, user.id)
-    return {"token": token, "user": user_to_payload(user)}
+    set_session_cookie(response, token)
+    return {"user": user_to_payload(user)}
+
+
+@app.post("/auth/logout", response_model=SimpleMessage)
+def logout(response: Response):
+    clear_session_cookie(response)
+    return {"detail": "ok"}
 
 
 @app.get("/me")

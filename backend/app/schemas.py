@@ -11,7 +11,6 @@ class LoginRequest(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    token: str
     user: dict
 
 

@@ -1,3 +1,5 @@
+import { request } from './api.js';
+
 function getBaseForLinks() {
   const path = String(location.pathname || '');
   return path.includes('/pages/') || path.includes('\\pages\\') ? '' : 'pages/';
@@ -15,18 +17,19 @@ function makeAvatarInitials(name) {
 
 function readSessionUser() {
   try {
-    const token = localStorage.getItem('LEVA_LEVE_TOKEN');
     const raw = localStorage.getItem('LEVA_LEVE_USER');
-    if (!token || !raw) return null;
+    if (!raw) return null;
     return JSON.parse(raw);
   } catch {
     return null;
   }
 }
 
-function logout() {
+async function logout() {
   try {
-    localStorage.removeItem('LEVA_LEVE_TOKEN');
+    await request('/auth/logout', { method: 'POST' });
+  } catch {}
+  try {
     localStorage.removeItem('LEVA_LEVE_USER');
   } catch {}
   window.location.href = location.pathname.includes('/pages/') ? '../index.html' : 'index.html';

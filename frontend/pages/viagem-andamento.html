@@ -239,7 +239,6 @@
           return;
         }
 
-        const token = localStorage.getItem('LEVA_LEVE_TOKEN') || '';
         const storedUser = (() => {
           try {
             return JSON.parse(localStorage.getItem('LEVA_LEVE_USER') || 'null');
@@ -247,7 +246,7 @@
             return null;
           }
         })();
-        if (!token || storedUser?.role !== 'driver') {
+        if (storedUser?.role !== 'driver') {
           applyTripData({
             price: fallbackTripData.price,
             distance_km: fallbackTripData.distance_km,
@@ -289,8 +288,7 @@
       (function () {
         const finishButton = document.getElementById("finalizar-entrega");
         finishButton.addEventListener("click", async function () {
-          const token = localStorage.getItem('LEVA_LEVE_TOKEN') || '';
-          if (!token || !requestId) {
+          if (!requestId) {
             window.location.href = "area-motorista.html";
             return;
           }
