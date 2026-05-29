@@ -261,15 +261,7 @@
         }
 
         try {
-          const response = await fetch(`http://localhost:8000/driver/requests/${requestId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (!response.ok) {
-            throw new Error('Nao foi possivel carregar os dados da corrida.');
-          }
-          const data = await response.json();
+          const data = await request(`/driver/requests/${requestId}`);
           applyTripData(data);
         } catch (error) {
           applyTripData({
@@ -303,19 +295,9 @@
           finishButton.textContent = 'Finalizando...';
 
           try {
-            const response = await fetch(`http://localhost:8000/driver/requests/${requestId}/complete`, {
+            const result = await request(`/driver/requests/${requestId}/complete`, {
               method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
             });
-
-            if (!response.ok) {
-              throw new Error('Nao foi possivel concluir a corrida.');
-            }
-
-            const result = await response.json();
             if (result?.notification) {
               sessionStorage.setItem('LEVA_LEVE_LAST_NOTIFICATION', JSON.stringify(result.notification));
             }

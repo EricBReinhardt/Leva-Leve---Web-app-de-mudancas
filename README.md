@@ -18,7 +18,7 @@ Interface em HTML + Tailwind CSS com as telas do fluxo de cliente e motorista.
 
 ## Backend
 
-API em Python com FastAPI e PostgreSQL.
+API em Python com FastAPI. O frontend e a API podem ser publicados no Vercel no mesmo repositório.
 
 ### Estrutura
 
@@ -30,9 +30,17 @@ API em Python com FastAPI e PostgreSQL.
 
 ### Como executar
 
-1. Crie o banco PostgreSQL e ajuste `backend/.env` a partir de `backend/.env.example`.
+1. Crie o banco PostgreSQL ou use o Vercel Postgres e defina `DATABASE_URL`.
 2. Instale as dependencias com `pip install -r backend/requirements.txt`.
 3. Rode a API com `uvicorn app.main:app --reload` dentro da pasta `backend/`.
+
+## Deploy no Vercel
+
+1. A raiz do projeto no Vercel deve apontar para este repositório inteiro.
+2. O build command deve executar `python scripts/build_frontend.py`.
+3. O output directory deve ser `dist`.
+4. A API fica em `api/[...path].py` e responde em `/api/*`.
+5. Defina `DATABASE_URL` nas variaveis de ambiente do projeto.
 
 ## Contas de teste
 

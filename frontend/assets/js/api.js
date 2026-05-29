@@ -1,5 +1,17 @@
-// Default to deployed backend on Render; can be overridden in localStorage for testing
-const API_BASE = localStorage.getItem('LEVA_LEVE_API_BASE') || 'https://leva-leve-web-app-de-mudancas.onrender.com';
+function defaultApiBase() {
+  const override = localStorage.getItem('LEVA_LEVE_API_BASE');
+  if (override) {
+    return override.replace(/\/$/, '');
+  }
+
+  if (location.protocol === 'file:') {
+    return 'http://localhost:8000';
+  }
+
+  return `${location.origin}/api`;
+}
+
+const API_BASE = defaultApiBase();
 
 export function getToken() {
   return localStorage.getItem('LEVA_LEVE_TOKEN') || '';

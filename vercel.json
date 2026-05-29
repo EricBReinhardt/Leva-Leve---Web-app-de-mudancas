@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python scripts/build_frontend.py",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{**/__pycache__/**,**/*.pyc,frontend/**,dist/**,scripts/**,.git/**,.venv/**}"
+    }
+  }
+}
