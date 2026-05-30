@@ -50,8 +50,9 @@ class ClientTransportRequestIn(BaseModel):
     dropoff_floor: str | None = None
     distance_km: float
     eta_minutes: int
-    price: float
+    item_count: int = Field(default=1, ge=1)
     helper_required: bool = False
+    price: float | None = None
 
 
 class ClientTripOut(BaseModel):

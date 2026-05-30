@@ -152,6 +152,15 @@ def request_payload(
     return payload
 
 
+def calculate_transport_price(item_count: int, helper_required: bool) -> float:
+    base_price = 89.90
+    included_items = 3
+    extra_item_price = 18.00
+    helper_price = 30.00 if helper_required else 0.0
+    extra_items = max(0, item_count - included_items)
+    return round(base_price + extra_items * extra_item_price + helper_price, 2)
+
+
 def notification_payload(notification: Notification | None) -> dict | None:
     if notification is None:
         return None
@@ -457,7 +466,7 @@ def create_client_request(payload: ClientTransportRequestIn, authorization: str 
         dropoff_address=f"{dropoff_parts[0]} - {', '.join(dropoff_extra_parts)}" if dropoff_extra_parts else dropoff_parts[0],
         distance_km=payload.distance_km,
         eta_minutes=payload.eta_minutes,
-        price=payload.price,
+        price=calculate_transport_price(payload.item_count, payload.helper_required),
         helper_required=payload.helper_required,
         item_description=payload.item_description,
     )

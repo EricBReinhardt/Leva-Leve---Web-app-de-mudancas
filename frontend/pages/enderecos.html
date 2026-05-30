@@ -206,6 +206,9 @@
       }
 
       document.getElementById('calcular-preco').addEventListener('click', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const estimatedPrice = urlParams.get('estimated_price') || '89.90';
+        const helperRequired = urlParams.get('helper_required') === 'true';
         const params = new URLSearchParams({
           pickup_street: clientAddress ? `${clientAddress.street}, ${clientAddress.number}` : 'Endereco do cliente',
           pickup_city: clientAddress ? `${clientAddress.neighborhood}, ${clientAddress.city} - ${clientAddress.state}` : '--',
@@ -216,10 +219,12 @@
           dropoff_floor: document.getElementById('dropoff-floor').value.trim(),
           distance_km: '8.5',
           eta_minutes: '40',
-          price: '89.90',
-          helper_required: 'true',
-          item_title: new URLSearchParams(window.location.search).get('item_title') || 'Item informado',
-          client_name: new URLSearchParams(window.location.search).get('client_name') || 'Cliente',
+          price: estimatedPrice,
+          helper_required: String(helperRequired),
+          item_title: urlParams.get('item_title') || 'Item informado',
+          item_description: urlParams.get('item_description') || urlParams.get('item_title') || 'Item informado',
+          item_count: urlParams.get('item_count') || '1',
+          client_name: urlParams.get('client_name') || 'Cliente',
         });
 
         window.location.href = `confirmar-pagamento.html?${params.toString()}`;
